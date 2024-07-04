@@ -36,7 +36,12 @@
                     <img src="images/logo.svg" alt="alt" width="80px" height="50px">
                 </div>
                 <div class="center text-white">
-                    <a href="shop">Shopping</a>
+                    <form action="search">
+                        <div class="mb-1">
+                            <input type="text" name="keyword" placeholder="Search...">
+                            <input type="submit" value="Search" class="bg-success text-white border-0">
+                        </div>
+                    </form>
                 </div>
                 <div class="right">
                     <ul class="d-flex">
