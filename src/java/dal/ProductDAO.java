@@ -54,8 +54,8 @@ public class ProductDAO extends DBContext {
         }
         return arr;
     }
-    
-    //get List og products by name
+
+    //get List of products by name
     public List<Product> getAllProductsByName(String key) {
         List<Product> list = new ArrayList<>();
         String sql = "select * from Product where name like ?";
@@ -81,6 +81,76 @@ public class ProductDAO extends DBContext {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+        return list;
+    }
+
+    //get list products by any criteria
+    public List<Product> seachProductsByCriteria(String keyword, long[] cids, long[] bids, String sortBy, String order) {
+        List<Product> list = new ArrayList<>();
+        String sql = "select * from Product where 1 = 1";
+
+        //Search by keyword form search form
+        if (keyword != null) {
+            sql += " and name like ?";
+        }
+
+        //Search by category ids
+       if(cids != null && cids.length > 0) {
+           sql += " and categoryId in (";
+           for (int i = 0; i < cids.length; i++) {
+               sql += cids[i] + ",";
+           }
+           if(sql.endsWith(",")) {
+               sql = sql.substring(0, sql.length() - 1);
+           }
+           sql += ")";
+       }
+       
+       //Search by brand ids
+       if(bids != null && bids.length > 0) {
+           sql += " and brandId in (";
+           for (int i = 0; i < bids.length; i++) {
+               sql += bids[i] + ",";
+           }
+           if(sql.endsWith(",")) {
+               sql = sql.substring(0, sql.length() - 1);
+           }
+           sql += ")";
+       }
+       
+       //Sort
+       if(sortBy.equals("price")) {
+           sql += " order by (price * (100 - discount) / 100) " + order;
+       } else {
+           sql += " order by " + sortBy + " " + order;
+       }
+      
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            if (keyword != null) {
+                st.setString(1, "%" + keyword + "%");
+            }
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                Product p = new Product(rs.getLong(1),
+                        rs.getString(2),
+                        rs.getDouble(3),
+                        rs.getDouble(4),
+                        rs.getInt(5),
+                        rs.getString(6),
+                        rs.getString(7),
+                        rs.getBoolean(8),
+                        rs.getInt(9),
+                        new Brand(rs.getLong(10)),
+                        new Category(rs.getLong(11))
+                );
+                list.add(p);
+            }
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
         return list;
     }
 }

@@ -64,48 +64,108 @@ public class SearchServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        //Search by keyword from form search
+        //Get keyword from form search
         String key = request.getParameter("keyword");
         if (key == null) {
             key = "";
         }
+
+        //Get selected category ids from checkbox in a left sidebar
+        String[] cids_raw = request.getParameterValues("cid");
+        long[] cids1 = null;
+        if (cids_raw != null) {
+            cids1 = new long[cids_raw.length];
+            for (int i = 0; i < cids1.length; i++) {
+                cids1[i] = Long.parseLong(cids_raw[i]);
+            }
+        }
+        
+        //Get selected brand ids from checkbox in a left sidebar
+        String[] bids_raw = request.getParameterValues("bid");
+        long[] bids1 = null;
+        if (bids_raw != null) {
+            bids1 = new long[bids_raw.length];
+            for (int i = 0; i < bids1.length; i++) {
+                bids1[i] = Long.parseLong(bids_raw[i]);
+            }
+        }
+        
+        //Sort
+        String sort = request.getParameter("sort");
+        if(sort == null) {
+            sort = "id_asc";
+        }
+        String sortBy = sort.split("_")[0];
+        String order = sort.split("_")[1];
+        
         ProductDAO pdb = new ProductDAO();
-        List<Product> listp = pdb.getAllProductsByName(key);
+        List<Product> listp = pdb.seachProductsByCriteria(key, cids1, bids1, sortBy, order);
+        
+        //Maintain checked state of category checkboxes
+        CategoryDAO cdb = new CategoryDAO();
+        List<Category> listc = cdb.getAll();
+        boolean[] cid2 = new boolean[listc.size()];
+        for (int i = 0; i < cid2.length; i++) {
+            if(isCheck(listc.get(i).getId(), cids1)) {
+                cid2[i] = true;
+            } else {
+                cid2[i] = false;
+            }
+        }
+        
+        //Maintain checked state of category checkboxes
+        BrandDAO bdb = new BrandDAO();
+        List<Brand> listb = bdb.getAll();
+        boolean[] bid2 = new boolean[listb.size()];
+        for (int i = 0; i < bid2.length; i++) {
+            if(isCheck(listb.get(i).getId(), bids1)) {
+                bid2[i] = true;
+            } else {
+                bid2[i] = false;
+            }
+        }
+        
+        //Pagination
         int page, numperpage = 9;
         int size = listp.size();
-        int num = (size % numperpage == 0 ? size / numperpage : size / numperpage + 1);
+        int num = (size % numperpage == 0 ?  size / numperpage : size / numperpage + 1);
         String xpage = request.getParameter("page");
-        if (xpage == null) {
+        if(xpage == null) {
             page = 1;
         } else {
-            try {
-                page = Integer.parseInt(xpage);
-            } catch (NumberFormatException e) {
-                page = 1; // Nếu không thể parse, đặt mặc định là trang 1
-            }
+            page = Integer.parseInt(xpage);
         }
         int start, end;
         start = (page - 1) * numperpage;
         end = Math.min(page * numperpage, size);
-        List<Product> list = pdb.getListByPage(listp, start, end);
+        List<Product> listt = pdb.getListByPage(listp, start, end);
         request.setAttribute("page", page);
         request.setAttribute("num", num);
-        request.setAttribute("listp", list);
+        
         request.setAttribute("keyword", key);
-        
-        //Search Category checkbox
-        
-        
-        //Load data category, brand in a left sidebar
-        CategoryDAO cdb = new CategoryDAO();
-        List<Category> listc = cdb.getAll();
+        request.setAttribute("listp", listt);
+     
         request.setAttribute("listc", listc);
-        
-        BrandDAO bdb = new BrandDAO();
-        List<Brand> listb = bdb.getAll();
+        request.setAttribute("cid", cid2);
+
         request.setAttribute("listb", listb);
+        request.setAttribute("bid", bid2);
+        
+        request.setAttribute("sort", sort);
         request.getRequestDispatcher("home.jsp").forward(request, response);
 
+    }
+    
+     private boolean isCheck(long d, long[] id) {
+        if(id == null)
+            return false;
+        else {
+            for (int i = 0; i < id.length; i++) {
+                if(id[i] == d)
+                    return true;
+            }
+            return false;
+        }
     }
 
     /**

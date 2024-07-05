@@ -48,16 +48,19 @@
         <%@include file="menu.jsp"%>
         <main class="container-fluid d-flex mt-3">
             <c:set var="listc" value="${requestScope.listc}"/>
+            <c:set var="cid" value="${requestScope.cid}"/>
             <c:set var="listp" value="${requestScope.listp}"/>
             <c:set var="listb" value="${requestScope.listb}"/>
+            <c:set var="bid" value="${requestScope.bid}"/>
             <div class="sidebar" style="width: 25%">
                 <h3>Categories</h3>
                 <img src="images/divide.svg" alt="alt"/>
-                <form action="">
+                <form action="search">
                     <c:forEach begin="0" end="${listc.size() - 1}" var="i"> 
                         <div class="mb-1">
-                            <input type="checkbox" name="id" id="cat" value="${listc.get(i).getId()}">
-                            <label for="cat" class="form-label ps-2">${listc.get(i).getName()}</label>
+                            <input type="checkbox" name="cid" value="${listc.get(i).getId()}"
+                                   ${cid[i] ? "checked" : ""} onclick="this.form.submit()">
+                            ${listc.get(i).getName()}
                         </div>
                     </c:forEach>
                 </form>
@@ -71,19 +74,23 @@
                 <form action="search">
                     <c:forEach begin="0" end="${listb.size() - 1}" var="i"> 
                         <div class="mb-1">
-                            <input type="checkbox" name="id" id="brand" value="${listb.get(i).getId()}">
-                            <label for="brand" class="form-label ps-2">${listb.get(i).getName()}</label>
+                            <input type="checkbox" name="bid" value="${listb.get(i).getId()}"
+                                   ${bid[i] ? "checked" : ""} onclick="this.form.submit()">
+                            ${listb.get(i).getName()}
                         </div>
                     </c:forEach>
                 </form>
 
             </div>
             <div class="listproduct" style="width: 75%">
-                <select name="sort" style="float: right" class="my-2">
-                    <option value="df">Default sorting</option>
-                    <option value="second">text2</option>
-                    <option value="third">text3</option>
-                </select>
+                <c:set var="sort" value="${requestScope.sort}"/>
+                <form action="search">
+                    <select name="sort" style="float: right" class="my-2" onchange="this.form.submit()">
+                        <option value="id_asc" ${param.sort == 'id_asc' ? 'selected' : ''}>Default sorting</option>
+                        <option value="price_asc" ${param.sort == 'price_asc' ? 'selected' : ''}>Price: Low to High</option>
+                        <option value="price_desc" ${param.sort == 'price_desc' ? 'selected' : ''}>Price: High to Low</option>
+                    </select>
+                </form>
                 <div class="clearfix" style="clear: both">
 
                 </div>
@@ -92,7 +99,7 @@
                     <c:forEach items="${requestScope.listp}" var="p">
                         <div class="col-4 mb-4 text-center position-relative">
                             <div class="box border border-1">
-                                <img src="${p.image}" alt="alt" class="w-75"/>
+                                <img src="${p.image}" alt="alt" class="w-75 h-50"/>
                                 <p>${p.name}</p>
                                 <p class="d-flex justify-content-center align-items-center fw-bold">
                                     <c:if test="${p.discount != 0}">
