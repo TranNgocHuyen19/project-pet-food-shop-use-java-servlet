@@ -45,6 +45,34 @@ public class ProductDAO extends DBContext {
         }
         return list;
     }
+    
+    //find Product by id
+    public Product getProductById(long id) {
+        String sql = "select * from Product where id = ?";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setLong(1, id);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                Product p = new Product(rs.getLong(1),
+                        rs.getString(2),
+                        rs.getDouble(3),
+                        rs.getDouble(4),
+                        rs.getInt(5),
+                        rs.getString(6),
+                        rs.getString(7),
+                        rs.getBoolean(8),
+                        rs.getInt(9),
+                        new Brand(rs.getLong(10)),
+                        new Category(rs.getLong(11))
+                );
+                return p;
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
 
     //get List of products by page
     public List<Product> getListByPage(List<Product> list, int start, int end) {

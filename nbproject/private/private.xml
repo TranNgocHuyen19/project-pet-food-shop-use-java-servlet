@@ -5,8 +5,6 @@
         <group>
             <file>file:/D:/JavaServlet/project-java-servlet/project/src/java/dal/ProductDAO.java</file>
             <file>file:/D:/JavaServlet/project-java-servlet/project/web/home.jsp</file>
-            <file>file:/D:/JavaServlet/project-java-servlet/project/src/java/controller/HomeServlet.java</file>
-            <file>file:/D:/JavaServlet/project-java-servlet/project/web/menu.jsp</file>
             <file>file:/D:/JavaServlet/project-java-servlet/project/src/java/controller/SearchServlet.java</file>
         </group>
     </open-files>

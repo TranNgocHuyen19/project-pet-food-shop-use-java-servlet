@@ -15,8 +15,11 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import model.Brand;
+import model.Cart;
+import model.CartItem;
 import model.Category;
 import model.Product;
 
@@ -24,8 +27,8 @@ import model.Product;
  *
  * @author Trần Ngọc Huyền
  */
-@WebServlet(name="HomeServlet", urlPatterns={"/home"})
-public class HomeServlet extends HttpServlet {
+@WebServlet(name="BuyServlet", urlPatterns={"/buy"})
+public class BuyServlet extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -42,10 +45,10 @@ public class HomeServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet HomeServlet</title>");  
+            out.println("<title>Servlet BuyServlet</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet HomeServlet at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet BuyServlet at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -62,7 +65,41 @@ public class HomeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+        request.getRequestDispatcher("home.jsp").forward(request, response);
+    } 
+
+    /** 
+     * Handles the HTTP <code>POST</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        Cart cart = null;
+        Object o = session.getAttribute("cart");
+        if(o == null) {
+            cart = new Cart();
+        } else {
+            cart = (Cart) o; 
+        }
+        String id_raw = request.getParameter("pid");
         ProductDAO pdb = new ProductDAO();
+        long id = 0;
+        try {
+            id = Long.parseLong(id_raw);
+            
+            Product p = pdb.getProductById(id);
+            CartItem i = new CartItem(p, 1, p.getPrice() * (100 - p.getDiscount()) / 100);
+            cart.addItem(i);
+            request.setAttribute("id", p);
+        } catch (NumberFormatException e) {
+            System.out.println(e);
+        }
+        
         List<Product> listp = pdb.getAll();
         int page, numperpage = 6;
         int size = listp.size();
@@ -81,6 +118,10 @@ public class HomeServlet extends HttpServlet {
         request.setAttribute("num", num);
         request.setAttribute("listp", list);
         
+        List<CartItem> listC = cart.getItems();
+        session.setAttribute("cart", cart);
+        session.setAttribute("size", listC.size());
+        
         CategoryDAO cdb = new CategoryDAO();
         List<Category> listc = cdb.getAll();
         request.setAttribute("listc", listc);
@@ -89,20 +130,7 @@ public class HomeServlet extends HttpServlet {
         List<Brand> listb = bdb.getAll();
         request.setAttribute("listb", listb);
         
-        request.getRequestDispatcher("home.jsp").forward(request, response);
-    } 
-
-    /** 
-     * Handles the HTTP <code>POST</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        processRequest(request, response);
+         request.getRequestDispatcher("home.jsp").forward(request, response);
     }
 
     /** 

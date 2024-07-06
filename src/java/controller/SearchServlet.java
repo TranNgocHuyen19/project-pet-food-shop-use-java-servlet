@@ -126,7 +126,7 @@ public class SearchServlet extends HttpServlet {
         }
         
         //Pagination
-        int page, numperpage = 9;
+        int page, numperpage = 6;
         int size = listp.size();
         int num = (size % numperpage == 0 ?  size / numperpage : size / numperpage + 1);
         String xpage = request.getParameter("page");

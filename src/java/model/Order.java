@@ -18,7 +18,7 @@ public class Order {
     private String address;
     private LocalDateTime orderDate;
     private double totalMoney;
-    private String status;
+    private boolean status;
     private boolean active;
     private User u;
 
@@ -29,7 +29,7 @@ public class Order {
          this.id = id;
     }
 
-    public Order(long id, String fullName, String phone, String email, String address, LocalDateTime orderDate, double totalMoney, String status, boolean active, User u) {
+    public Order(long id, String fullName, String phone, String email, String address, LocalDateTime orderDate, double totalMoney, boolean status, boolean active, User u) {
         this.id = id;
         this.fullName = fullName;
         this.phone = phone;
@@ -98,11 +98,11 @@ public class Order {
         this.totalMoney = totalMoney;
     }
 
-    public String getStatus() {
+    public boolean isStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(boolean status) {
         this.status = status;
     }
 
@@ -121,6 +121,7 @@ public class Order {
     public void setU(User u) {
         this.u = u;
     }
+
     
     
     

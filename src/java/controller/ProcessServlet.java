@@ -5,9 +5,6 @@
 
 package controller;
 
-import dal.BrandDAO;
-import dal.CategoryDAO;
-import dal.ProductDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -15,17 +12,15 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
-import model.Brand;
-import model.Category;
-import model.Product;
+import jakarta.servlet.http.HttpSession;
+import model.Cart;
 
 /**
  *
  * @author Trần Ngọc Huyền
  */
-@WebServlet(name="HomeServlet", urlPatterns={"/home"})
-public class HomeServlet extends HttpServlet {
+@WebServlet(name="ProcessServlet", urlPatterns={"/process"})
+public class ProcessServlet extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -42,10 +37,10 @@ public class HomeServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet HomeServlet</title>");  
+            out.println("<title>Servlet ProcessServlet</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet HomeServlet at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet ProcessServlet at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -62,34 +57,13 @@ public class HomeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        ProductDAO pdb = new ProductDAO();
-        List<Product> listp = pdb.getAll();
-        int page, numperpage = 6;
-        int size = listp.size();
-        int num = (size % numperpage == 0 ?  size / numperpage : size / numperpage + 1);
-        String xpage = request.getParameter("page");
-        if(xpage == null) {
-            page = 1;
-        } else {
-            page = Integer.parseInt(xpage);
+        HttpSession session = request.getSession();
+        Cart cart = null;
+        Object o = session.getAttribute("cart");
+        if(o == null) {
+            cart = new Cart();
+            cart = (Cart) o;
         }
-        int start, end;
-        start = (page - 1) * numperpage;
-        end = Math.min(page * numperpage, size);
-        List<Product> list = pdb.getListByPage(listp, start, end);
-        request.setAttribute("page", page);
-        request.setAttribute("num", num);
-        request.setAttribute("listp", list);
-        
-        CategoryDAO cdb = new CategoryDAO();
-        List<Category> listc = cdb.getAll();
-        request.setAttribute("listc", listc);
-        
-        BrandDAO bdb = new BrandDAO();
-        List<Brand> listb = bdb.getAll();
-        request.setAttribute("listb", listb);
-        
-        request.getRequestDispatcher("home.jsp").forward(request, response);
     } 
 
     /** 
