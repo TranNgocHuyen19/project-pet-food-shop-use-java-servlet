@@ -55,7 +55,7 @@ public class Cart {
     }
     
     //remove item
-    public void removeItem(int id){
+    public void removeItem(long id){
         if(getItemById(id) != null) {
             items.remove(getItemById(id));
         }
@@ -65,7 +65,7 @@ public class Cart {
     public double getTotalMoney() {
         double total = 0;
         for(CartItem i: items){
-            total += (i.getQuantity() * i.getProduct().getPrice());
+            total += (i.getQuantity() * i.getPrice());
         }
         return total;
     }
